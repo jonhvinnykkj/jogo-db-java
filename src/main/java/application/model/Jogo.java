@@ -1,7 +1,10 @@
 package application.model;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,33 +13,40 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Table(name="jogos")
+@Getter
+@Setter
 public class Jogo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Column(nullable = false)
     private String titulo;
 
-    @ManyToMany
-    @JoinTable(
-        name = "jogo_genero",
-        joinColumns = @JoinColumn(name = "jogo_id"),
-        inverseJoinColumns = @JoinColumn(name = "genero_id")
-    )
-    private List<Genero> generos;
-
-    @ManyToMany
-    @JoinTable(
-        name = "jogo_plataforma",
-        joinColumns = @JoinColumn(name = "jogo_id"),
-        inverseJoinColumns = @JoinColumn(name = "plataforma_id")
-    )
-    private List<Plataforma> plataformas;
-
     @ManyToOne
-    @JoinColumn(name = "modo_id")
+    @JoinColumn(name = "id_modo_de_jogo", nullable = false)
     private Modo modo;
+
+    @ManyToMany
+    @JoinTable(
+        name = "jogos_possuem_generos",
+        joinColumns = @JoinColumn(name = "id_jogo"),
+        inverseJoinColumns = @JoinColumn(name = "id_genero")
+    )
+    private Set<Genero> generos = new HashSet<Genero>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "jogos_possuem_plataformas",
+        joinColumns = @JoinColumn(name = "id_jogo"),
+        inverseJoinColumns = @JoinColumn(name = "id_plataforma")
+    )
+    private Set<Plataforma> plataformas = new HashSet<Plataforma>();
+
 }

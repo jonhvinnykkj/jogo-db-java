@@ -4,22 +4,22 @@
 <html lang="pt-br">
     <head>
         <meta charset="UTF-8">
-        <title>Jogos</title>
+        <title>Gêneros</title>
         <link href="/css/bootstrap.min.css" rel="stylesheet" />
     </head>
     <body>
         <div class="container">
-            <h1>Jogos</h1>
-            <a href="/jogos/insert" class="btn btn-primary">Novo Jogo</a>
+            <h1>Gêneros</h1>
+            <a href="/generos/insert" class="btn btn-primary">Novo Gênero</a>
             <table class="table">
                 <tr>
                     <th>id</th>
-                    <th>titulo</th>
+                    <th>nome</th>
                 </tr>
-                <c:forEach var="g" items="${jogos}">
+                <c:forEach var="g" items="${generos}">
                     <tr>
                         <td>${g.id}</td>
-                        <td>${g.titulo}</td>
+                        <td>${g.nome}</td>
                     </tr>
                 </c:forEach>
             </table>

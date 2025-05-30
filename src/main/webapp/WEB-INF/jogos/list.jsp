@@ -1,40 +1,39 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
-<%@ taglib uri="http://jakarta.ee/jsp/jstl/core" prefix="c" %>
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <title>Jogos</title>
-</head>
-<body>
-<h1>Lista de Jogos</h1>
+<%@ page contentType="text/html;charset=UTF-8" %>
+    <%@ taglib uri="jakarta.tags.core" prefix="c" %>
+        <!DOCTYPE html>
+        <html lang="pt-br">
 
-<a href="${pageContext.request.contextPath}/jogos/insert">+ Novo Jogo</a>
+        <head>
+            <meta charset="UTF-8">
+            <title>Jogos</title>
+            <link href="/css/bootstrap.min.css" rel="stylesheet" />
+        </head>
 
-<table border="1" cellpadding="6">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th>Data de Lançamento</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        <c:forEach var="j" items="${jogos}">
-            <tr>
-                <td>${j.id}</td>
-                <td>${j.nome}</td>
-                <td>${j.descricao}</td>
-                <td>${j.dataLancamento}</td>
-                <td>
-                    <a href="${pageContext.request.contextPath}/jogos/${j.id}/edit">Editar</a> |
-                    <a href="${pageContext.request.contextPath}/jogos/${j.id}/delete"
-                       onclick="return confirm('Confirma exclusão?');">Excluir</a>
-                </td>
-            </tr>
-        </c:forEach>
-    </tbody>
-</table>
-</body>
-</html>
+        <body>
+            <div class="container">
+                <h1>Jogos</h1>
+                <a href="/jogos/insert" class="btn btn-primary">Novo Jogo</a>
+
+                <table class="table">
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Ações</th>
+                    </tr>
+                    <c:forEach var="j" items="${jogos}">
+                        <tr>
+                            <td>${j.id}</td>
+                            <td>${j.titulo}</td>
+                            <td>
+                                <a href="${pageContext.request.contextPath}/jogos/update?id=${j.id}"
+                                    class="btn btn-sm btn-warning">Editar</a>
+                                <a href="${pageContext.request.contextPath}/jogos/delete?id=${j.id}"
+                                    class="btn btn-sm btn-danger">Excluir</a>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </table>
+            </div>
+        </body>
+
+        </html>

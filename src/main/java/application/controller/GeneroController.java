@@ -1,55 +1,71 @@
 package application.controller;
 
-import application.model.Genero;
-import application.repository.GeneroRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import application.model.Genero;
+import application.repository.GeneroRepository;
 
 @Controller
 @RequestMapping("/generos")
 public class GeneroController {
+    @Autowired
+    private GeneroRepository generoRepo;
 
-    private final GeneroRepository generoRepo;
-
-    public GeneroController(GeneroRepository generoRepo) {
-        this.generoRepo = generoRepo;
-    }
-
-    /* ---------- LISTAR ---------- */
-    @GetMapping("/list")
-    public String list(Model ui) {
-        ui.addAttribute("generos", generoRepo.findAll());
-        return "/generos/list";
-    }
-
-    /* ---------- FORM INSERT ---------- */
-    @GetMapping("/insert")
-    public String insertForm(Model ui) {
-        ui.addAttribute("genero", new Genero());
+    @RequestMapping("/insert")
+    public String insert() {
         return "/generos/insert";
     }
 
-    /* ---------- INSERT / UPDATE ---------- */
-    @PostMapping("/save")
-    public String save(@ModelAttribute Genero genero) {
-        generoRepo.save(genero);                // update se id != null
+    @RequestMapping(value = "/insert", method = RequestMethod.POST)
+    public String insert(@RequestParam("nome") String nome) {
+        Genero genero = new Genero();
+        genero.setNome(nome);
+
+        generoRepo.save(genero);
+
         return "redirect:/generos/list";
     }
 
-    /* ---------- FORM EDIT ---------- */
-    @GetMapping("/{id}/edit")
-    public String edit(@PathVariable Long id, Model ui) {
-        Genero genero = generoRepo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("ID inválido: " + id));
-        ui.addAttribute("genero", genero);
-        return "/generos/insert";              // reaproveita o mesmo JSP
+    @RequestMapping("/list")
+    public String list(Model ui) {
+        ui.addAttribute("generos", generoRepo.findAll());
+
+        return "/generos/list";
     }
 
-    /* ---------- DELETE ---------- */
-    @GetMapping("/{id}/delete")
-    public String delete(@PathVariable Long id) {
+    @RequestMapping("/update")
+    public String updateForm(@RequestParam("id") Long id, Model model) {
+        Genero genero = generoRepo.findById(id).orElse(null);
+        model.addAttribute("genero", genero);
+        return "/generos/update";
+    }
+
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    public String update(@RequestParam("id") Long id, @RequestParam("nome") String nome) {
+        Genero genero = generoRepo.findById(id).orElse(null);
+        if (genero != null) {
+            genero.setNome(nome);
+            generoRepo.save(genero);
+        }
+        return "redirect:/generos/list";
+    }
+
+    @RequestMapping("/delete")
+    public String deleteForm(@RequestParam("id") Long id, Model model) {
+        Genero genero = generoRepo.findById(id).orElse(null);
+        model.addAttribute("genero", genero);
+        return "/generos/delete";
+    }
+
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    public String delete(@RequestParam("id") Long id) {
         generoRepo.deleteById(id);
         return "redirect:/generos/list";
     }
+
 }

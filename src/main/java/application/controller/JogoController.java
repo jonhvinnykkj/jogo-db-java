@@ -1,55 +1,108 @@
 package application.controller;
 
-import application.model.Jogo;
-import application.repository.JogoRepository;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import application.model.Genero;
+import application.model.Jogo;
+import application.model.Plataforma;
+import application.repository.GeneroRepository;
+import application.repository.JogoRepository;
+import application.repository.ModoRepository;
+import application.repository.PlataformaRepository;
 
 @Controller
 @RequestMapping("/jogos")
 public class JogoController {
+    @Autowired
+    private JogoRepository jogoRepo;
 
-    private final JogoRepository jogoRepo;
+    @Autowired
+    private GeneroRepository generoRepo;
 
-    public JogoController(JogoRepository jogoRepo) {
-        this.jogoRepo = jogoRepo;
-    }
+    @Autowired
+    private PlataformaRepository plataformaRepo;
 
-    /* ---------- LISTAR ---------- */
-    @GetMapping("/list")
-    public String list(Model ui) {
-        ui.addAttribute("jogos", jogoRepo.findAll());
-        return "/jogos/list";
-    }
+    @Autowired
+    private ModoRepository modoRepo;
 
-    /* ---------- FORM INSERT ---------- */
-    @GetMapping("/insert")
-    public String insertForm(Model ui) {
-        ui.addAttribute("jogo", new Jogo());
+    @RequestMapping("/insert")
+    public String insert(Model model) {
+        model.addAttribute("generos", generoRepo.findAll());
+        model.addAttribute("plataformas", plataformaRepo.findAll());
+        model.addAttribute("modos", modoRepo.findAll());
         return "/jogos/insert";
     }
 
-    /* ---------- INSERT / UPDATE ---------- */
-    @PostMapping("/save")
-    public String save(@ModelAttribute Jogo jogo) {
+    @RequestMapping(value = "/insert", method = RequestMethod.POST)
+    public String insert(
+            @RequestParam("titulo") String titulo,
+            @RequestParam("modoId") Long modoId,
+            @RequestParam(value = "generoIds", required = false) List<Long> generoIds,
+            @RequestParam(value = "plataformaIds", required = false) List<Long> plataformaIds) {
+
+        Jogo jogo = new Jogo();
+        jogo.setTitulo(titulo);
+
+        modoRepo.findById(modoId).ifPresent(jogo::setModo);
+
+        if (generoIds != null) {
+            Set<Genero> generos = new HashSet<>(generoRepo.findAllById(generoIds));
+            jogo.setGeneros(generos);
+        }
+
+        if (plataformaIds != null) {
+            Set<Plataforma> plataformas = new HashSet<>(plataformaRepo.findAllById(plataformaIds));
+            jogo.setPlataformas(plataformas);
+        }
+
         jogoRepo.save(jogo);
         return "redirect:/jogos/list";
     }
 
-    /* ---------- FORM EDIT ---------- */
-    @GetMapping("/{id}/edit")
-    public String edit(@PathVariable Long id, Model ui) {
-        Jogo jogo = jogoRepo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("ID inválido: " + id));
-        ui.addAttribute("jogo", jogo);
-        return "/jogos/insert";
+    @RequestMapping("/list")
+    public String list(Model ui) {
+        ui.addAttribute("jogos", jogoRepo.findAll());
+
+        return "/jogos/list";
     }
 
-    /* ---------- DELETE ---------- */
-    @GetMapping("/{id}/delete")
-    public String delete(@PathVariable Long id) {
+    @RequestMapping("/update")
+    public String updateForm(@RequestParam("id") Long id, Model model) {
+        Jogo jogo = jogoRepo.findById(id).orElse(null);
+        model.addAttribute("jogo", jogo);
+        return "/jogos/update";
+    }
+
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    public String update(@RequestParam("id") Long id, @RequestParam("nome") String nome) {
+        Jogo jogo = jogoRepo.findById(id).orElse(null);
+        if (jogo != null) {
+            jogo.setTitulo(nome);
+            jogoRepo.save(jogo);
+        }
+        return "redirect:/jogos/list";
+    }
+
+    @RequestMapping("/delete")
+    public String deleteForm(@RequestParam("id") Long id, Model model) {
+        Jogo jogo = jogoRepo.findById(id).orElse(null);
+        model.addAttribute("jogo", jogo);
+        return "/jogos/delete";
+    }
+
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    public String delete(@RequestParam("id") Long id) {
         jogoRepo.deleteById(id);
         return "redirect:/jogos/list";
     }
+
 }

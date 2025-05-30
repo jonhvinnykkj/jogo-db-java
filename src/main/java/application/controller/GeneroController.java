@@ -37,4 +37,35 @@ public class GeneroController {
 
         return "/generos/list";
     }
+
+    @RequestMapping("/update")
+    public String updateForm(@RequestParam("id") Long id, Model model) {
+        Genero genero = generoRepo.findById(id).orElse(null);
+        model.addAttribute("genero", genero);
+        return "/generos/update";
+    }
+
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    public String update(@RequestParam("id") Long id, @RequestParam("nome") String nome) {
+        Genero genero = generoRepo.findById(id).orElse(null);
+        if (genero != null) {
+            genero.setNome(nome);
+            generoRepo.save(genero);
+        }
+        return "redirect:/generos/list";
+    }
+
+    @RequestMapping("/delete")
+    public String deleteForm(@RequestParam("id") Long id, Model model) {
+        Genero genero = generoRepo.findById(id).orElse(null);
+        model.addAttribute("genero", genero);
+        return "/generos/delete";
+    }
+
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    public String delete(@RequestParam("id") Long id) {
+        generoRepo.deleteById(id);
+        return "redirect:/generos/list";
+    }
+
 }

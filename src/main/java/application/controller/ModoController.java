@@ -37,5 +37,35 @@ public class ModoController {
 
         return "/modos/list";
     }
-    
+
+    @RequestMapping("/update")
+    public String updateForm(@RequestParam("id") Long id, Model model) {
+        Modo modo = modoRepo.findById(id).orElse(null);
+        model.addAttribute("modo", modo);
+        return "/modos/update";
+    }
+
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    public String update(@RequestParam("id") Long id, @RequestParam("nome") String nome) {
+        Modo modo = modoRepo.findById(id).orElse(null);
+        if (modo != null) {
+            modo.setModo(nome);
+            modoRepo.save(modo);
+        }
+        return "redirect:/modos/list";
+    }
+
+    @RequestMapping("/delete")
+    public String deleteForm(@RequestParam("id") Long id, Model model) {
+        Modo modo = modoRepo.findById(id).orElse(null);
+        model.addAttribute("modo", modo);
+        return "/modos/delete";
+    }
+
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    public String delete(@RequestParam("id") Long id) {
+        modoRepo.deleteById(id);
+        return "redirect:/modos/list";
+    }
+
 }
